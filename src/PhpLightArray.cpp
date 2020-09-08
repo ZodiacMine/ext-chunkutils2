@@ -209,7 +209,7 @@ void register_light_array_class() {
 	zend_declare_class_constant(light_array_entry, "ZERO", sizeof("ZERO") - 1, &constant);
 
 	tmp_zstr = zend_string_alloc(2048, 1);
-	memset(ZSTR_VAL(tmp_zstr), 15, 2048);
+	memset(ZSTR_VAL(tmp_zstr), 255, 2048);
 	ZVAL_NEW_STR(&constant, tmp_zstr);
 	zend_declare_class_constant(light_array_entry, "FIFTEEN", sizeof("FIFTEEN") - 1, &constant);
 }
