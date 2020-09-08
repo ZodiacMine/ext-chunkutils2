@@ -57,7 +57,7 @@ public:
 	}
 
 	const gsl::span<const uint8_t, DATA_SIZE> getRawData() const {
-		return gsl::span<const uint8_t>(mValues);
+		return gsl::span<const uint8_t, DATA_SIZE>(mValues);
 	}
 };
 #endif
