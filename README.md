@@ -1,6 +1,6 @@
 # ext-chunkutils2
 
-[![Build Status](https://travis-ci.com/pmmp/ext-chunkutils2.svg?branch=master)](https://travis-ci.com/pmmp/ext-chunkutils2)
+![CI](https://github.com/pmmp/ext-chunkutils2/workflows/CI/badge.svg)
 
 PHP extension prototype written in C++ implementing the new MCPE 1.2.13 subchunk format
 
@@ -12,6 +12,7 @@ At the time of writing:
 
 - `\pocketmine\world\format\PalettedBlockArray`: This class implements paletted block-storages as per modern MCPE since 1.2.13.
 - `\pocketmine\world\format\io\SubChunkConverter`: This class contains a series of helper methods for upgrading legacy world terrain.
+- `\pocketmine\world\format\LightArray`: Implements a 16x16x16 nibble array used for light storage.
 
 ## What's in the folders?
 - `gsl`: Subtree merge of https://github.com/microsoft/GSL

@@ -48,7 +48,6 @@ static bool paletted_block_array_from_data(zval *return_value, zend_long bitsPer
 		) {
 
 		if (!checkPaletteEntrySize(Z_LVAL_P(current))) {
-			zval_ptr_dtor(return_value);
 			return false;
 		}
 		b = (Block)Z_LVAL_P(current);
@@ -60,8 +59,7 @@ static bool paletted_block_array_from_data(zval *return_value, zend_long bitsPer
 		return true;
 	}
 	catch (std::exception& e) {
-		zval_ptr_dtor(return_value);
-		zend_throw_exception_ex(spl_ce_RuntimeException, 0, e.what());
+		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "%s", e.what());
 		return false;
 	}
 }
@@ -100,9 +98,9 @@ static zend_object* paletted_block_array_new(zend_class_entry *class_type) {
 	return &object->std;
 }
 
-static zend_object* paletted_block_array_clone(zval *object) {
-	paletted_block_array_obj *old_object = fetch_from_zend_object<paletted_block_array_obj>(Z_OBJ_P(object));
-	paletted_block_array_obj *new_object = fetch_from_zend_object<paletted_block_array_obj>(paletted_block_array_new(Z_OBJCE_P(object)));
+static zend_object* paletted_block_array_clone(chunkutils2_handler_context *object) {
+	paletted_block_array_obj *old_object = fetch_from_zend_object<paletted_block_array_obj>(Z_OBJ_FROM_HANDLER_CONTEXT(object));
+	paletted_block_array_obj *new_object = fetch_from_zend_object<paletted_block_array_obj>(paletted_block_array_new(Z_OBJ_FROM_HANDLER_CONTEXT(object)->ce));
 	new_object->container = old_object->container; //this calls the copy assignment operator
 
 	zend_objects_clone_members(&new_object->std, &old_object->std); //copy user-assigned properties
@@ -139,7 +137,7 @@ static int paletted_block_array_serialize(zval *obj, unsigned char **buffer, siz
 	php_var_serialize(&buf, &zv, &serialize_data);
 	zval_dtor(&zv);
 
-	ZVAL_ARR(&zv, zend_std_get_properties(obj));
+	ZVAL_ARR(&zv, zend_std_get_properties(HANDLER_CONTEXT_FROM_ZVAL(obj)));
 	php_var_serialize(&buf, &zv, &serialize_data);
 
 	PHP_VAR_SERIALIZE_DESTROY(serialize_data);
@@ -188,7 +186,7 @@ static int paletted_block_array_unserialize(zval *object, zend_class_entry *ce, 
 		goto end;
 	}
 	if (zend_hash_num_elements(Z_ARRVAL_P(properties)) != 0) {
-		zend_hash_copy(zend_std_get_properties(object), Z_ARRVAL_P(properties),(copy_ctor_func_t)zval_add_ref);
+		zend_hash_copy(zend_std_get_properties(HANDLER_CONTEXT_FROM_ZVAL(object)), Z_ARRVAL_P(properties),(copy_ctor_func_t)zval_add_ref);
 	}
 	result = SUCCESS;
 end:
@@ -219,7 +217,7 @@ PHP_METHOD(PhpPalettedBlockArray, __construct) {
 		new(&intern->container) NormalBlockArrayContainer((Block)fillEntry);
 	}
 	catch (std::exception& e) {
-		zend_throw_exception_ex(spl_ce_RuntimeException, 0, e.what());
+		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "%s", e.what());
 	}
 }
 
@@ -301,7 +299,7 @@ PHP_METHOD(PhpPalettedBlockArray, get) {
 	ZEND_PARSE_PARAMETERS_END();
 
 	paletted_block_array_obj *intern = fetch_from_zend_object<paletted_block_array_obj>(Z_OBJ_P(getThis()));
-	RETURN_LONG(intern->container.get(x, y, z))
+	RETURN_LONG(intern->container.get(x, y, z));
 }
 
 
@@ -398,7 +396,7 @@ PHP_METHOD(PhpPalettedBlockArray, getExpectedWordArraySize) {
 		RETURN_LONG((zend_long)NormalBlockArrayContainer::getExpectedPayloadSize(casted));
 	}
 	catch (std::invalid_argument &e) {
-		zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0, e.what());
+		zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0, "%s", e.what());
 	}
 }
 
